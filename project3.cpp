@@ -314,7 +314,7 @@ public:
 	Node(int x, int y){
 		this->x = x;
 		this->y = y;
-		this->id = to_string(x)+to_string(y);
+		this->id = to_string(x)+","+to_string(y);
 	}
 	Node(const Node &n){
 		this->x = n.x;
@@ -328,22 +328,14 @@ public:
 
 void find_path(int *g, int sx, int sy, int tx, int ty)
 {   
-//used_edge ( 0,0,1,0 );
-//path_edge(10,10,10,11);
 queue<Node*> q;
-//stack<Node*> reached_from;
 unordered_map<string, Node*> r;
-//vector<Node*> r;
 
 bool visited[SIZE][SIZE] = {false};
 
 Node* n = new Node(sx, sy);
 q.push(n);
 
-Node* n0 = NULL;
-Node* n1 = NULL;
-Node* n2 = NULL;
-Node* n3 = NULL;
 int row;
 int col;
 
@@ -352,97 +344,41 @@ while(!q.empty()){
 	q.pop();
 	row = x->getX();
 	col = x->getY();
-	if(!visited[row][col]){
+	if(visited[row][col] == false){
 		visited[row][col] = true;
 	
-		if(g[row*(SIZE*4)+col*SIZE+0] == FREE) n0 = new Node(row, col+1);
-		if(g[row*(SIZE*4)+col*SIZE+1] == FREE) n1 = new Node(row+1, col);
-		if(g[row*(SIZE*4)+col*SIZE+2] == FREE) n2 = new Node(row, col-1);
-		if(g[row*(SIZE*4)+col*SIZE+3] == FREE) n3 = new Node(row-1, col);
-		
-		if(n0){
-			//reached_from[n0->getId()] = x; 
-			q.push(n0);
-			used_edge(row, col, n0->getX(), n0->getY());
+		if(g[row*(SIZE*4)+col*4+0] == FREE) {
+			used_edge(row, col, row+1, col);
+			q.push(new Node(row+1, col));
+			if(visited[row+1][col] == false) r[to_string(row+1)+","+to_string(col)] = x;
 		}
-		if(n1){
-			//reached_from[n1->getId()] = x; 
-			q.push(n1);
-			used_edge(row, col, n1->getX(), n1->getY());
+		if(g[row*(SIZE*4)+col*4+1] == FREE) {
+			used_edge(row, col, row, col+1);
+			q.push(new Node(row, col+1));
+			if(visited[row][col+1] == false) r[to_string(row)+","+to_string(col+1)] = x;
 		}
-		if(n2){
-			//reached_from[n2->getId()] = x; 
-			q.push(n2);
-			used_edge(row, col, n2->getX(), n2->getY());
+		if(g[row*(SIZE*4)+col*4+2] == FREE) {
+			used_edge(row, col, row-1, col);
+			q.push(new Node(row-1, col));
+			if(visited[row-1][col] == false) r[to_string(row-1)+","+to_string(col)] = x;
 		}
-		if(n3){
-			//reached_from[n3->getId()] = x; 
-			q.push(n3);
-			used_edge(row, col, n3->getX(), n3->getY());
+		if(g[row*(SIZE*4)+col*4+3] == FREE) {
+			used_edge(row, col, row, col-1);
+			q.push(new Node(row, col-1));
+			if(visited[row][col-1] == false) r[to_string(row)+","+to_string(col-1)] = x;
 		}
-
-		/*	
-		if(!reached_from[n0->getId()]) reached_from[n0->getId()] = x; q.push(n0);
-		if(!reached_from[n1->getId()]) reached_from[n1->getId()] = x; q.push(n1);
-		if(!reached_from[n2->getId()]) reached_from[n2->getId()] = x; q.push(n2);
-		if(!reached_from[n3->getId()]) reached_from[n3->getId()] = x; q.push(n3);
-		*/
-
 	}
 }
 
-}
-
-/*
-vector<Node*> q;
-unordered_map<Node*, Node*> reached_from;
-
-bool visited[SIZE][SIZE];
-for(int i = 0; i < SIZE; ++i){
-	for(int j = 0; j < SIZE; ++j){
-		visited[i][j] = false;
-	}
+string a = to_string(tx)+","+to_string(ty);
+int b1, b2;
+while(a != to_string(sx)+","+to_string(sy)){
+	Node* myn = r[a];
+	b1 = stoi(a.substr(0, a.find(",")));
+	b2 = stoi(a.substr(a.find(",")+1, a.size()-1));
+	path_edge(myn->getX(), myn->getY(), b1, b2);
+	a = to_string(myn->getX())+","+to_string(myn->getY());
 }
 
 
-q.push_back(new Node(sx, sy));
-
-int row;
-int col;
-//cout << q.size();
-while(!q.empty()){
-	Node* x = new Node(*q[0]);
-	q.erase(q.begin());
-	row = x->getX();
-	col = x->getY();
-
-	if (row < 0 || col < 0 || 
-		row >= SIZE || col >= SIZE || 
-		visited[row][col]){
-
-	visited[row][col] = true;
-
-	if(g[row][col][0] == FREE) Node* n0 = new Node(row, col+1);
-	if(g[row][col][1] == FREE) Node* n1 = new Node(row+1, col);
-	if(g[row][col][2] == FREE) Node* n2 = new Node(row, col-1);
-	if(g[row][col][3] == FREE) Node* n3 = new Node(row-1, col);
-
-	if(n0 && !reached_from[n0]) reached_from[n0] = x; q.push_back(n0);
-	if(n1 && !reached_from[n1]) reached_from[n1] = x; q.push_back(n1);
-	if(n2 && !reached_from[n2]) reached_from[n2] = x; q.push_back(n2);
-	if(n3 && !reached_from[n3]) reached_from[n3] = x; q.push_back(n3);
-
-	//draw
-	//cout << g[row][col]
-	//q.push_back(new Node(row, col-1));
-	//q.push_back(new Node(row, col+1));
-	//q.push_back(new Node(row-1, col));
-	//q.push_back(new Node(row+1, col));
-	}
 }
-//cout << row << col << endl;
-
-}
-
-
-*/
