@@ -1,5 +1,13 @@
 /*Testcode for  220 Homework 3 Fall 2020: Exploration of a grid graph */
 /* compiles with command line  gcc test.c -lX11 -lm */
+/*
+ *Matthew Pecko
+ *Professor Brass
+ *11/22/2020
+ *CSc 220 Homework 3
+ */
+/* compiles with command line  g++ brasshw3.cpp -lX11 -lm */
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
